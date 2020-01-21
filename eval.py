@@ -32,6 +32,11 @@ parser.add_argument('--gpu', type=str, default=0)
 
 args = parser.parse_args()
 
+assert args.content_path is not None and args.content_dir is not None, \
+    'Either --content-path or --content-dir should be given.'
+assert args.style_path is not None and args.style_dir is not None, \
+    'Either --style-path or --style-dir should be given.'
+
 device = torch.device('cuda:%s' % args.gpu if torch.cuda.is_available() and args.use_gpu else 'cpu')
 
 encoder = NormalisedVGG(pretrained_path=args.encoder_path).to(device)
