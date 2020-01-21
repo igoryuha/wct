@@ -27,7 +27,7 @@ def deprocess(tensor):
     return transforms.ToPILImage()(tensor)
 
 
-def extract_images(path):
+def extract_image_names(path):
     r_ = []
     valid_ext = ['.jpg', '.png']
 

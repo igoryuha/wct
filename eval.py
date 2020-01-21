@@ -1,6 +1,6 @@
 import torch
 from models import NormalisedVGG, Decoder
-from utils import load_image, preprocess, deprocess, extract_images
+from utils import load_image, preprocess, deprocess, extract_image_names
 from ops import style_decorator, wct
 import argparse
 import os
@@ -90,8 +90,8 @@ if not os.path.exists(args.save_dir):
 with torch.no_grad():
 
     if args.content_dir and args.style_dir:
-        content_paths = extract_images(args.content_dir)
-        style_paths = extract_images(args.style_dir)
+        content_paths = extract_image_names(args.content_dir)
+        style_paths = extract_image_names(args.style_dir)
 
         for i in range(len(content_paths)):
             content = load_image(content_paths[i])
