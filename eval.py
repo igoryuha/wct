@@ -23,8 +23,8 @@ parser.add_argument('--synthesis', type=int, default=0, help='0-transfer, 1-synt
 parser.add_argument('--encoder-path', type=str, default='encoder/vgg_normalised_conv5_1.pth')
 parser.add_argument('--decoders-dir', type=str, default='decoders')
 
-parser.add_argument('--save-name', type=str, default='result')
 parser.add_argument('--save-dir', type=str, default='./results')
+parser.add_argument('--save-name', type=str, default='save name for single output image')
 parser.add_argument('--save-ext', type=str, default='jpg', help='The extension name of the output image')
 
 parser.add_argument('--content-size', type=int, default=768, help='New (minimum) size for the content image')
@@ -88,48 +88,57 @@ if not os.path.exists(args.save_dir):
     print('Creating save folder at', args.save_dir)
     os.mkdir(args.save_dir)
 
+content_paths = []
+style_paths = []
+
+if args.content_dir and args.style_dir:
+    content_paths = extract_image_names(args.content_dir)
+    style_paths = extract_image_names(args.style_dir)
+else:
+    content_paths.append(args.content_path)
+    style_paths.append(args.style_path)
+
+print('Number content images:', len(content_paths))
+print('Number style images:', len(style_paths))
+
 with torch.no_grad():
 
-    if args.content_dir and args.style_dir:
-        content_paths = extract_image_names(args.content_dir)
-        style_paths = extract_image_names(args.style_dir)
-
-        for i in range(len(content_paths)):
-            content = load_image(content_paths[i])
-            content = preprocess(content, args.content_size)
-            content = content.to(device)
-
-            for j in range(len(style_paths)):
-                style = load_image(style_paths[j])
-                style = preprocess(style, args.style_size)
-                style = style.to(device)
-
-                output = style_transfer(content, style)
-                output = deprocess(output)
-                save_path = '%s/%s_%s.%s' % (args.save_dir, i, j, args.save_ext)
-                print('Output image saved at:', save_path)
-                output.save(save_path)
-    else:
-        content = load_image(args.content_path)
+    for i in range(len(content_paths)):
+        content = load_image(content_paths[i])
         content = preprocess(content, args.content_size)
         content = content.to(device)
 
-        style = load_image(args.style_path)
-        style = preprocess(style, args.style_size)
-        style = style.to(device)
+        for j in range(len(style_paths)):
+            style = load_image(style_paths[j])
+            style = preprocess(style, args.style_size)
+            style = style.to(device)
 
-        if args.synthesis == 0:
-            output = style_transfer(content, style)
-            output = deprocess(output)
-            save_path = '%s/%s.%s' % (args.save_dir, args.save_name, args.save_ext)
-            print('Output image saved at:', save_path)
-            output.save(save_path)
-        else:
-            content = torch.rand(*content.shape).uniform_(0, 1).to(device)
-            for i in range(3):
+            if args.synthesis == 0:
                 output = style_transfer(content, style)
-                content = output
                 output = deprocess(output)
-                save_path = '%s/%s_%s.%s' % (args.save_dir, args.save_name, i, args.save_ext)
+
+                if len(content_paths) == 1 and len(style_paths) == 1:
+                    # used a single content and style image
+                    save_path = '%s/%s.%s' % (args.save_dir, args.save_name, args.save_ext)
+                else:
+                    # used a batch of content and style images
+                    save_path = '%s/%s_%s.%s' % (args.save_dir, i, j, args.save_ext)
+
                 print('Output image saved at:', save_path)
                 output.save(save_path)
+            else:
+                content = torch.rand(*content.shape).uniform_(0, 1).to(device)
+                for iteration in range(3):
+                    output = style_transfer(content, style)
+                    content = output
+                    output = deprocess(output)
+
+                    if len(content_paths) == 1 and len(style_paths) == 1:
+                        # used a single content and style image
+                        save_path = '%s/%s_%s.%s' % (args.save_dir, args.save_name, iteration, args.save_ext)
+                    else:
+                        # used a batch of content and style images
+                        save_path = '%s/%s_%s_%s.%s' % (args.save_dir, i, j, iteration, args.save_ext)
+
+                    print('Output image saved at:', save_path)
+                    output.save(save_path)
