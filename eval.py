@@ -27,8 +27,7 @@ parser.add_argument('--stride', type=int, default=1)
 parser.add_argument('--alpha', type=float, default=0.8)
 parser.add_argument('--ss-alpha', type=float, default=0.6)
 
-parser.add_argument('--use-gpu', type=int, default=1)
-parser.add_argument('--gpu', type=str, default=0)
+parser.add_argument('--gpu', type=int, default=0, help='ID of the GPU to use; for CPU mode set --gpu = -1')
 
 args = parser.parse_args()
 
@@ -37,7 +36,7 @@ assert args.content_path is not None or args.content_dir is not None, \
 assert args.style_path is not None or args.style_dir is not None, \
     'Either --style-path or --style-dir should be given.'
 
-device = torch.device('cuda:%s' % args.gpu if torch.cuda.is_available() and args.use_gpu else 'cpu')
+device = torch.device('cuda:%s' % args.gpu if torch.cuda.is_available() and args.gpu != -1 else 'cpu')
 
 encoder = NormalisedVGG(pretrained_path=args.encoder_path).to(device)
 d5 = Decoder('relu5_1', pretrained_path=os.path.join(args.decoders_dir, 'd5.pth')).to(device)
