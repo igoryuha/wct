@@ -18,6 +18,7 @@ parser.add_argument('--kernel-size', type=int, default=12)
 parser.add_argument('--stride', type=int, default=1)
 parser.add_argument('--alpha', type=float, default=0.8)
 parser.add_argument('--ss-alpha', type=float, default=0.6)
+parser.add_argument('--synthesis', type=int, default=0, help='0-transfer, 1-synthesis')
 
 parser.add_argument('--encoder-path', type=str, default='encoder/vgg_normalised_conv5_1.pth')
 parser.add_argument('--decoders-dir', type=str, default='decoders')
@@ -117,8 +118,18 @@ with torch.no_grad():
         style = preprocess(style, args.style_size)
         style = style.to(device)
 
-        output = style_transfer(content, style)
-        output = deprocess(output)
-        save_path = '%s/%s.%s' % (args.save_dir, args.save_name, args.save_ext)
-        print('Output image saved at:', save_path)
-        output.save(save_path)
+        if args.synthesis == 0:
+            output = style_transfer(content, style)
+            output = deprocess(output)
+            save_path = '%s/%s.%s' % (args.save_dir, args.save_name, args.save_ext)
+            print('Output image saved at:', save_path)
+            output.save(save_path)
+        else:
+            content = torch.rand(*content.shape).uniform_(0, 1).to(device)
+            for i in range(3):
+                output = style_transfer(content, style)
+                content = output
+                output = deprocess(output)
+                save_path = '%s/%s_%s.%s' % (args.save_dir, args.save_name, i, args.save_ext)
+                print('Output image saved at:', save_path)
+                output.save(save_path)
