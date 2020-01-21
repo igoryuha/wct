@@ -24,7 +24,7 @@ parser.add_argument('--encoder-path', type=str, default='encoder/vgg_normalised_
 parser.add_argument('--decoders-dir', type=str, default='decoders')
 
 parser.add_argument('--save-dir', type=str, default='./results')
-parser.add_argument('--save-name', type=str, default='save name for single output image')
+parser.add_argument('--save-name', type=str, default='result', help='save name for single output image')
 parser.add_argument('--save-ext', type=str, default='jpg', help='The extension name of the output image')
 
 parser.add_argument('--content-size', type=int, default=768, help='New (minimum) size for the content image')
@@ -91,11 +91,18 @@ if not os.path.exists(args.save_dir):
 content_paths = []
 style_paths = []
 
-if args.content_dir and args.style_dir:
+if args.content_dir:
+    # use a batch of content images
     content_paths = extract_image_names(args.content_dir)
+else:
+    # use a single content image
+    content_paths.append(args.content_path)
+
+if args.style_dir:
+    # use a batch of style images
     style_paths = extract_image_names(args.style_dir)
 else:
-    content_paths.append(args.content_path)
+    # use a single style image
     style_paths.append(args.style_path)
 
 print('Number content images:', len(content_paths))
