@@ -13,20 +13,21 @@ parser.add_argument('--style-path', type=str, help='path to the style image')
 parser.add_argument('--content-dir', type=str, help='path to the content image folder')
 parser.add_argument('--style-dir', type=str, help='path to the style image folder')
 
-parser.add_argument('--save-name', type=str, default='result')
-parser.add_argument('--save-dir', type=str, default='./results')
-parser.add_argument('--save-ext', type=str, default='jpg', help='The extension name of the output image')
-parser.add_argument('--encoder-path', type=str, default='encoder/vgg_normalised_conv5_1.pth')
-parser.add_argument('--decoders-dir', type=str, default='decoders')
-parser.add_argument('--content-size', type=int, default=768, help='New (minimum) size for the content image')
-parser.add_argument('--style-size', type=int, default=768, help='New (minimum) size for the style image')
-
 parser.add_argument('--style-decorator', type=int, default=1)
 parser.add_argument('--kernel-size', type=int, default=12)
 parser.add_argument('--stride', type=int, default=1)
 parser.add_argument('--alpha', type=float, default=0.8)
 parser.add_argument('--ss-alpha', type=float, default=0.6)
 
+parser.add_argument('--encoder-path', type=str, default='encoder/vgg_normalised_conv5_1.pth')
+parser.add_argument('--decoders-dir', type=str, default='decoders')
+
+parser.add_argument('--save-name', type=str, default='result')
+parser.add_argument('--save-dir', type=str, default='./results')
+parser.add_argument('--save-ext', type=str, default='jpg', help='The extension name of the output image')
+
+parser.add_argument('--content-size', type=int, default=768, help='New (minimum) size for the content image')
+parser.add_argument('--style-size', type=int, default=768, help='New (minimum) size for the style image')
 parser.add_argument('--gpu', type=int, default=0, help='ID of the GPU to use; for CPU mode set --gpu = -1')
 
 args = parser.parse_args()
